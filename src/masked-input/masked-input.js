@@ -59,7 +59,7 @@ function MaskedInput({mask, onChange, placeholder, value}) {
 
   function onKeyDown(event) {
     const {key, target} = event;
-    //console.log('masked-input.js onKeyDown: key =', key);
+    console.log('masked-input.js onKeyDown: key =', key);
 
     if (isSpecialKey(key)) return;
 
