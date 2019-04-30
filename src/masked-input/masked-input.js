@@ -57,10 +57,9 @@ function MaskedInput({mask, onChange, placeholder, value}) {
     onChange(event);
   }
 
-  //TODO: Handle when cursor is not at end.
   function onKeyDown(event) {
     const {key, target} = event;
-    let position = target.selectionEnd;
+    //console.log('masked-input.js onKeyDown: key =', key);
 
     if (isSpecialKey(key)) return;
 
@@ -69,32 +68,45 @@ function MaskedInput({mask, onChange, placeholder, value}) {
 
     event.preventDefault();
 
-    if (value.length >= mask.length) return;
+    let {selectionEnd, selectionStart} = target;
+    const textSelected = selectionEnd > selectionStart;
+
+    if (value.length >= mask.length && !textSelected) return;
 
     let literals = '';
 
-    if (!keyMatchesPlaceholder(maskChar, key)) {
-      // Find the next placeholder character.
-      const len = value.length;
-      const remainingMask = mask.substring(len);
+    if (textSelected) {
+      // Delete selected characters.
+      value =
+        value.substring(0, selectionStart) + value.substring(selectionEnd);
 
-      let placeholder;
-      for (const char of remainingMask) {
-        if (isPlaceholder(char)) {
-          placeholder = char;
-          break;
+      selectionEnd = selectionStart;
+    } else {
+      if (!keyMatchesPlaceholder(maskChar, key)) {
+        // Find the next placeholder character.
+        const len = value.length;
+        const remainingMask = mask.substring(len);
+
+        let placeholder;
+        for (const char of remainingMask) {
+          if (isPlaceholder(char)) {
+            placeholder = char;
+            break;
+          }
+        }
+
+        // Don't allow key if no matching mask placeholder was found.
+        if (!placeholder || !keyMatchesPlaceholder(placeholder, key)) return;
+
+        // Add all the literal characters up to the placeholder to the value.
+        for (const char of remainingMask) {
+          if (!isLiteral(char)) break;
+          literals += char;
         }
       }
-
-      // Don't allow key if no matching mask placeholder was found.
-      if (!placeholder || !keyMatchesPlaceholder(placeholder, key)) return;
-
-      // Add all the literal characters up to the placeholder to the value.
-      for (const char of remainingMask) {
-        if (!isLiteral(char)) break;
-        literals += char;
-      }
     }
+
+    let position = selectionEnd;
 
     let newValue =
       value.substring(0, position) + literals + key + value.substring(position);
