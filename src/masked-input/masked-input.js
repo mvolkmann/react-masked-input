@@ -41,7 +41,6 @@ function MaskedInput({mask, onChange, placeholder, value}) {
   function onKeyDown(event) {
     const {key, target} = event;
     let position = target.selectionEnd;
-    console.log('masked-input.js onKeyDown: position =', position);
 
     if (isSpecialKey(key)) return;
 
@@ -77,12 +76,48 @@ function MaskedInput({mask, onChange, placeholder, value}) {
       }
     }
 
-    target.value =
+    let newValue =
       value.substring(0, position) + literals + key + value.substring(position);
+
+    const atEnd = position === target.value.length;
+    if (!atEnd) {
+      // Reflow the placeholder values.
+
+      // Get all the non-placeholder characters from the mask.
+      const literalSet = new Set();
+      for (const char of mask) {
+        if (!isPlaceholder(char)) literalSet.add(char);
+      }
+      console.log('masked-input.js x: literalSet =', literalSet);
+
+      // Remove non-placeholder characters from the value.
+      let rawValue = '';
+      for (const char of newValue) {
+        if (!literalSet.has(char)) rawValue += char;
+      }
+      console.log('masked-input.js x: rawValue =', rawValue);
+
+      let reflowedValue = '';
+      for (const char of mask) {
+        if (rawValue.length === 0) break; // no more characters to reflow
+
+        if (isPlaceholder(char)) {
+          reflowedValue += rawValue[0];
+          rawValue = rawValue.substring(1);
+        } else {
+          reflowedValue += char;
+        }
+      }
+      console.log('masked-input.js x: reflowedValue =', reflowedValue);
+
+      newValue = reflowedValue;
+    }
+
+    target.value = newValue;
+
     handleChange(event);
 
     position += literals.length + 1;
-    console.log('masked-input.js x: position =', position);
     setTimeout(() => target.setSelectionRange(position, position), 0);
   }
 
