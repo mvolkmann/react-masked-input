@@ -2,6 +2,26 @@ import {func, string} from 'prop-types';
 import React from 'react';
 import './masked-input.css';
 
+const needsEscape = '[^$.|?*+(){}()';
+
+function getRegExp(mask) {
+  let regExp = '';
+  for (const char of mask) {
+    regExp += needsEscape.includes(char)
+      ? '\\' + char
+      : char === 'd'
+      ? '\\d'
+      : char === 'L'
+      ? '[A-Za-z]'
+      : char === 'l'
+      ? '[a-z]'
+      : char === 'u'
+      ? '[A-Z]'
+      : char;
+  }
+  return regExp;
+}
+
 const isDigit = char => '0' <= char && char <= '9';
 const isLower = char => 'a' <= char && char <= 'z';
 const isUpper = char => 'A' <= char && char <= 'Z';
@@ -88,14 +108,12 @@ function MaskedInput({mask, onChange, placeholder, value}) {
       for (const char of mask) {
         if (!isPlaceholder(char)) literalSet.add(char);
       }
-      console.log('masked-input.js x: literalSet =', literalSet);
 
       // Remove non-placeholder characters from the value.
       let rawValue = '';
       for (const char of newValue) {
         if (!literalSet.has(char)) rawValue += char;
       }
-      console.log('masked-input.js x: rawValue =', rawValue);
 
       let reflowedValue = '';
       for (const char of mask) {
@@ -108,7 +126,6 @@ function MaskedInput({mask, onChange, placeholder, value}) {
           reflowedValue += char;
         }
       }
-      console.log('masked-input.js x: reflowedValue =', reflowedValue);
 
       newValue = reflowedValue;
     }
@@ -127,6 +144,7 @@ function MaskedInput({mask, onChange, placeholder, value}) {
       type="text"
       onChange={handleChange}
       onKeyDown={onKeyDown}
+      pattern={getRegExp(mask)}
       placeholder={placeholder}
       value={value}
     />

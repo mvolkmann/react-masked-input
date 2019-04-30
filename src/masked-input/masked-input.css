@@ -4,3 +4,8 @@
   font-size: 20px;
   padding: 4px;
 }
+
+/* Only applied when invalid input loses focus. */
+.masked-input:invalid {
+  border-color: red;
+}

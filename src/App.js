@@ -16,7 +16,7 @@ function App() {
         <MaskedInput
           mask={phoneMask}
           onChange={onChange}
-          placeholder="(999)999-9999"
+          placeholder="(999) 999-9999"
           value={phone}
         />
       </div>
