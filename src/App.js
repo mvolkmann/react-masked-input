@@ -8,7 +8,7 @@ function App() {
   const onChange = event => setPhone(event.target.value);
 
   /* eslint-disable-next-line no-useless-escape */
-  const phoneMask = '(ddd)ddd-dddd';
+  const phoneMask = '(ddd) ddd-dddd';
   return (
     <div className="App">
       <div>

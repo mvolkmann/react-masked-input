@@ -1,0 +1,6 @@
+.masked-input {
+  border: solid gray 1px;
+  border-radius: 4px;
+  font-size: 20px;
+  padding: 4px;
+}
