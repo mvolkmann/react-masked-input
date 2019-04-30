@@ -4,10 +4,10 @@ This is a text input component that supports a mask.
 The mask uses the following placeholder characters to indicate
 what users can enter at a certain position in the input.
 
-- d means digit (0-9)
-- l means lowercase letter (a-z)
-- u means uppercase letter (A-Z)
-- L means letter, either lowercase or uppercase
+- `d` means digit (0-9)
+- `l` means lowercase letter (a-z)
+- `u` means uppercase letter (A-Z)
+- `L` means letter, either lowercase or uppercase
 
 All other characters are taken as literals.
 
@@ -37,6 +37,8 @@ It does not currently support pasting characters from the clipboard.
 When inserting characters at a location other than the end,
 it may push previously entered characters into
 invalid positions according to the mask.
+This is especially true with the mask allows
+a combination of digits and letters to be entered.
 
 To run the demo:
 
