@@ -52,14 +52,15 @@ function keyMatchesPlaceholder(maskChar, key) {
     : false;
 }
 
-function MaskedInput({mask, onChange, placeholder, value}) {
-  function handleChange(event) {
+function MaskedInput({mask, onChange, onMaskedChange, placeholder, value}) {
+  function handleChange(event, maskedValue) {
     onChange(event);
+    onMaskedChange(maskedValue);
   }
 
   function onKeyDown(event) {
     const {key, target} = event;
-    console.log('masked-input.js onKeyDown: key =', key);
+    //console.log('masked-input.js onKeyDown: key =', key);
 
     if (isSpecialKey(key)) return;
 
@@ -111,29 +112,29 @@ function MaskedInput({mask, onChange, placeholder, value}) {
     let newValue =
       value.substring(0, position) + literals + key + value.substring(position);
 
+    // Get all the non-placeholder characters from the mask.
+    const literalSet = new Set();
+    for (const char of mask) {
+      if (!isPlaceholder(char)) literalSet.add(char);
+    }
+
+    // Get the characters in the new value that are not mask literals.
+    let maskedValue = '';
+    for (const char of newValue) {
+      if (!literalSet.has(char)) maskedValue += char;
+    }
+
     const atEnd = position === target.value.length;
     if (!atEnd) {
       // Reflow the placeholder values.
-
-      // Get all the non-placeholder characters from the mask.
-      const literalSet = new Set();
-      for (const char of mask) {
-        if (!isPlaceholder(char)) literalSet.add(char);
-      }
-
-      // Remove non-placeholder characters from the value.
-      let rawValue = '';
-      for (const char of newValue) {
-        if (!literalSet.has(char)) rawValue += char;
-      }
-
       let reflowedValue = '';
+      let maskedCopy = maskedValue;
       for (const char of mask) {
-        if (rawValue.length === 0) break; // no more characters to reflow
+        if (maskedCopy.length === 0) break; // no more characters to reflow
 
         if (isPlaceholder(char)) {
-          reflowedValue += rawValue[0];
-          rawValue = rawValue.substring(1);
+          reflowedValue += maskedCopy[0];
+          maskedCopy = maskedCopy.substring(1);
         } else {
           reflowedValue += char;
         }
@@ -144,7 +145,7 @@ function MaskedInput({mask, onChange, placeholder, value}) {
 
     target.value = newValue;
 
-    handleChange(event);
+    handleChange(event, maskedValue);
 
     position += literals.length + 1;
     setTimeout(() => target.setSelectionRange(position, position), 0);
@@ -167,6 +168,7 @@ MaskedInput.propTypes = {
   mask: string.isRequired,
   placeholder: string,
   onChange: func.isRequired,
+  onMaskedChange: func.isRequired,
   value: string.isRequired
 };
 MaskedInput.defaultProps = {

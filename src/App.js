@@ -4,6 +4,7 @@ import './App.css';
 
 function App() {
   const [phone, setPhone] = useState('');
+  const [maskedPhone, setMaskedPhone] = useState('');
 
   const onChange = event => setPhone(event.target.value);
 
@@ -16,11 +17,13 @@ function App() {
         <MaskedInput
           mask={phoneMask}
           onChange={onChange}
+          onMaskedChange={setMaskedPhone}
           placeholder="(999) 999-9999"
           value={phone}
         />
       </div>
       <div>You entered {phone}.</div>
+      <div>The masked value is {maskedPhone}.</div>
     </div>
   );
 }
